@@ -13,6 +13,7 @@ export default function RecipeForm({
         category:assignedCategory,
         procedure:existingProcedure,
         videoLink:existingVideoLink,
+        nutriValue:existingNutriValue,
     }) {
     const [title, setTitle] = useState(existingTitle || '');
     const [description, setDescription] = useState(existingDescription || '');
@@ -24,6 +25,7 @@ export default function RecipeForm({
     const [categories, setCategories] = useState([]);
     const [procedure, setProcedure] = useState(existingProcedure || '');
     const [videoLink, setVideoLink] = useState(existingVideoLink || '');
+    const [nutriValue, setNutriValue] = useState(existingNutriValue || []);
 
     const router = useRouter();
     useEffect(() => {
@@ -42,10 +44,16 @@ export default function RecipeForm({
             category: categoryId,
             ingredients: ingredients.map(i => ({
                 name: i.name,
-                values: typeof i.values === 'string' ? i.values.split(',') : i.values,
+                quantity: i.quantity,
+                measurement: i.measurement,
+                // values: typeof i.values === 'string' ? i.values.split(',') : i.values,
             })),
             procedure,
             videoLink,
+            nutriValue: nutriValue.map(i => ({
+                name: i.name,
+                value: i.value,
+            })),
         };
     
         if (_id) {
@@ -82,7 +90,11 @@ export default function RecipeForm({
     }
 
     function addIngredient() {
-        setIngredients((prev) => [...prev, { name: "", values: "" }]);
+        setIngredients((prev) => [...prev, { name: "", quantity: "", measurement: "" }]);
+    }
+
+    function addNutriValue() {
+        setNutriValue((prev) => [...prev, { name: "", value: "" }]);
     }
     
     function handleIngredientNameChange(index, newIngredient) {
@@ -100,9 +112,39 @@ export default function RecipeForm({
         });
     }
 
+    function handleIngredientMeasurementChange(index, newIngredient) {
+        setIngredients((prev) => {
+            const updatedIngredients = [...prev];
+            updatedIngredients[index] = newIngredient;
+            return updatedIngredients;
+        });
+    }
+
     function removeIngredient(indexToRemove) {
         setIngredients((prev) => prev.filter((_, i) => i !== indexToRemove));
     }
+
+    function handleNutriValueNameChange(index, newNutriValue) {
+        setNutriValue((prev) => {
+            const updatedNutriValue = [...prev];
+            updatedNutriValue[index] = newNutriValue;
+            return updatedNutriValue;
+        });
+    }
+
+    function handleNutriValueValueChange(index, newNutriValue) {
+        setNutriValue((prev) => {
+            const updatedNutriValue = [...prev];
+            updatedNutriValue[index] = newNutriValue;
+            return updatedNutriValue;
+        });
+    }
+
+    function removeNutriValue(indexToRemove) {
+        setNutriValue((prev) => prev.filter((_, i) => i !== indexToRemove));
+    }
+
+
     
     return (
             <form onSubmit={saveRecipe}>
@@ -187,12 +229,31 @@ export default function RecipeForm({
                                     onChange={(ev) =>
                                         handleIngredientQuantityChange(index, {
                                             ...ingredient,
-                                            values: ev.target.value,
+                                            quantity: ev.target.value,
                                         })
                                     }
-                                    value={ingredient.values}
+                                    value={ingredient.quantity}
                                     placeholder="quantity"
                                 />
+                            <select
+                                value={ingredient.measurement}
+                                className="mb-0"
+                                onChange={(ev) =>
+                                    handleIngredientMeasurementChange(index, {
+                                    ...ingredient,
+                                    measurement: ev.target.value,
+                                    })
+                                }
+                                >
+                                <option value="tsp">teaspoon(tsp)</option>
+                                <option value="tbsp">tablespoon(tbsp)</option>
+                                <option value="pc">pieces(pc)</option>
+                                <option value="cloves">cloves(cl)</option>
+                                <option value="g">gram(g)</option>
+                                <option value="kg">kilogram(kg)</option>
+                                <option value="cup">cup(c)</option>
+                                <option value="bunch">bunch(bn)</option>
+                            </select>
                             <button 
                                 onClick={() => removeIngredient(index)}
                                 type="button"
@@ -217,6 +278,47 @@ export default function RecipeForm({
                     onChange={ev => setVideoLink(ev.target.value)}
                 />
                 </div>
+                <label className="block">Ingredients</label>
+                    <button 
+                        onClick={addNutriValue}
+                        type="button" 
+                        className="btn-default block text-sm mb-2">
+                            Add nutritional value
+                    </button>
+                    {nutriValue.length > 0 && nutriValue.map((nutriValue, index) => (
+                        <div className="flex gap-1 mb-2">
+                            <input
+                                    type="text"
+                                    required
+                                    value={nutriValue.name}
+                                    className="mb-0"
+                                    onChange={(ev) =>
+                                        handleNutriValueNameChange(index, {
+                                            ...nutriValue,
+                                            name: ev.target.value,
+                                        })
+                                    }
+                                    placeholder="nutrition name (example: calories)"
+                                />
+                           <input
+                                    type="text"
+                                    required
+                                    className="mb-0"
+                                    onChange={(ev) =>
+                                        handleNutriValueValueChange(index, {
+                                            ...nutriValue,
+                                            value: ev.target.value,
+                                        })
+                                    }
+                                    value={nutriValue.value}
+                                    placeholder="value"
+                                />
+                            <button 
+                                onClick={() => removeNutriValue(index)}
+                                type="button"
+                                className="bg-red-200 text-red-600 text-sm px-4 py-1 rounded-sm">Remove</button>
+                        </div>
+                    ))}
                 <button className="btn-primary">Save</button>
             </form>
     );

@@ -8,6 +8,9 @@ const recipeSchema = new Schema({
   ingredients: [{ type: Object, required: true }],
   procedure: { type: String, required: true },
   videoLink: { type: String },
+  nutriValue:  [{ type: Object, required: true }],
+}, {
+  timestamps: true,
 });
 
 export const Recipe = models.Recipe || model('Recipe', recipeSchema);

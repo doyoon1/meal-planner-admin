@@ -92,7 +92,7 @@ function Categories({swal}) {
                         <option value={category._id}>{category.name}</option>
                     ))}
                 </select>
-                <button type="submit" className="btn-primary">Save</button>
+                <button type="submit" className="btn-primary text-sm">Save</button>
             </form>
             <input
                 type="text"
