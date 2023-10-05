@@ -5,22 +5,45 @@ import { useEffect, useState } from "react";
 
 export default function Recipes() {
     const [recipes, setRecipes] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         axios.get('/api/recipes').then(response => {
             setRecipes(response.data);
         });
-    }, [])
+
+        axios.get('/api/categories').then(response => {
+            setCategories(response.data);
+        }); // Fetch categories
+
+    }, []);
 
     const handleSearchChange = (event) => {
         setSearchQuery(event.target.value);
     };
 
+    const renderCategoryNames = (categoryIds, categories) => {
+        // Check if categoryIds is null or undefined
+        if (!categoryIds || !categories) {
+            return '';
+        }
+    
+        // Map categoryIds to category names
+        const categoryNames = categoryIds.map(categoryId => {
+            const category = categories.find(cat => cat._id === categoryId);
+            return category ? category.name : '';
+        });
+    
+        // Join category names with commas
+        return categoryNames.join(', ');
+    };    
+
     const filteredRecipes = recipes.filter((recipe) => {
         const title = recipe.title.toLowerCase();
         return title.includes(searchQuery.toLowerCase());
     });
+
       
     return (
         <Layout>
@@ -36,6 +59,7 @@ export default function Recipes() {
                 <thead>
                     <tr>
                         <td>Recipe name</td>
+                        <td>Category</td>
                         {/* <td>Description</td>
                         <td>Ingredients</td>
                         <td>Video Link</td> */}
@@ -46,6 +70,7 @@ export default function Recipes() {
                     {filteredRecipes.map((recipe) => (
                         <tr key={recipe._id}>
                             <td>{recipe.title}</td>
+                            <td>{renderCategoryNames(recipe.category, categories)}</td>
                             {/* <td>{recipe.description}</td>
                             <td>
                             {recipe.ingredients.map((ingredient, index) => (
