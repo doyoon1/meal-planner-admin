@@ -1,5 +1,4 @@
 import Layout from "@/components/Layout";
-import { useSession } from "next-auth/react";
 
 export default function Admin() {
 

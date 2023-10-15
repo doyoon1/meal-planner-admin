@@ -337,8 +337,9 @@ export default function RecipeForm({
                                 value={ingredient.quantity}
                                 placeholder="quantity"
                             />
-                            <select
-                                value={ingredient.measurement}
+                            <input
+                                type="text"
+                                required
                                 className="mb-0"
                                 onChange={(ev) =>
                                     handleIngredientMeasurementChange(index, {
@@ -346,16 +347,9 @@ export default function RecipeForm({
                                         measurement: ev.target.value,
                                     })
                                 }
-                            >
-                                <option value="tsp">teaspoon(tsp)</option>
-                                <option value="tbsp">tablespoon(tbsp)</option>
-                                <option value="pc">pieces(pc)</option>
-                                <option value="cloves">cloves(cl)</option>
-                                <option value="g">gram(g)</option>
-                                <option value="kg">kilogram(kg)</option>
-                                <option value="cup">cup(c)</option>
-                                <option value="bunch">bunch(bn)</option>
-                            </select>
+                                value={ingredient.measurement}
+                                placeholder="measurement"
+                            />
                             <button
                                 onClick={() => removeIngredient(index)}
                                 type="button"
