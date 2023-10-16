@@ -1,15 +1,17 @@
-// Categories component
 import Layout from "@/components/Layout";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { withSwal } from "react-sweetalert2";
+import Pagination from "@/components/Pagination"
+
 
 function Categories({ swal }) {
   const [editedCategory, setEditedCategory] = useState(null);
   const [name, setName] = useState('');
   const [categories, setCategories] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  const categoryPerPage = 8;
 
   useEffect(() => {
     fetchCategories();
@@ -24,16 +26,29 @@ function Categories({ swal }) {
   async function saveCategory(ev) {
     ev.preventDefault();
     const data = { name };
-    if (editedCategory) {
-      data._id = editedCategory._id;
-      await axios.put('/api/categories', data);
-      setEditedCategory(null);
+  
+    // Check if the category with the same name already exists in the categories list
+    const isDuplicateCategory = categories.some(category => category.name.toLowerCase() === name.toLowerCase());
+  
+    if (isDuplicateCategory) {
+      // Display an alert message for duplicate category
+      swal.fire({
+        icon: 'error',
+        title: 'Duplicate Category',
+        text: 'This category already exists in the table.',
+      });
     } else {
-      await axios.post('/api/categories', data);
+      if (editedCategory) {
+        data._id = editedCategory._id;
+        await axios.put('/api/categories', data);
+        setEditedCategory(null);
+      } else {
+        await axios.post('/api/categories', data);
+      }
+      setName('');
+      fetchCategories();
     }
-    setName('');
-    fetchCategories();
-  }
+  }  
 
   function editCategory(category) {
     setEditedCategory(category);
@@ -57,16 +72,25 @@ function Categories({ swal }) {
     });
   }
 
-  // Function to handle search
-  function handleSearchChange(ev) {
-    setSearchQuery(ev.target.value);
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+    setCurrentPage(1);
+  };
 
-    // Perform search
-    const query = ev.target.value.toLowerCase();
-    const filteredCategories = categories.filter(category =>
-      category.name.toLowerCase().includes(query));
-    setSearchResults(filteredCategories);
-  }
+  const getFilteredCategories = () => {
+    return categories.filter((category) => {
+      const categoryName = category.name.toLowerCase();
+      return categoryName.includes(searchQuery.toLowerCase());
+    });
+  };
+
+  const filteredCategories = getFilteredCategories();
+
+  const indexOfLastCategory = currentPage * categoryPerPage;
+  const indexOfFirstCategory = indexOfLastCategory - categoryPerPage;
+  const currentCategory = filteredCategories.slice(indexOfFirstCategory, indexOfLastCategory);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <Layout>
@@ -100,7 +124,7 @@ function Categories({ swal }) {
           </tr>
         </thead>
         <tbody>
-          {(searchQuery ? searchResults : categories).map(category => (
+          {currentCategory.map(category => (
             <tr key={category._id}>
               <td>{category.name}</td>
               <td className="text-center">
@@ -126,6 +150,14 @@ function Categories({ swal }) {
           ))}
         </tbody>
       </table>
+      <div className="pagination-container">
+          <Pagination
+              recipesPerPage={categoryPerPage}
+              totalRecipes={filteredCategories.length}
+              currentPage={currentPage}
+              paginate={paginate}
+          />
+      </div>
     </Layout>
   );
 }

@@ -2,11 +2,14 @@ import Layout from "@/components/Layout";
 import axios from "axios";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import Pagination from "@/components/Pagination"
 
 export default function Recipes() {
     const [recipes, setRecipes] = useState([]);
     const [categories, setCategories] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const recipesPerPage = 10;
 
     useEffect(() => {
         axios.get('/api/recipes').then(response => {
@@ -15,71 +18,66 @@ export default function Recipes() {
 
         axios.get('/api/categories').then(response => {
             setCategories(response.data);
-        }); // Fetch categories
+        });
 
     }, []);
 
-    const handleSearchChange = (event) => {
-        setSearchQuery(event.target.value);
-    };
-
     const renderCategoryNames = (categoryIds, categories) => {
-        // Check if categoryIds is null or undefined
         if (!categoryIds || !categories) {
             return '';
         }
-    
-        // Map categoryIds to category names
+
         const categoryNames = categoryIds.map(categoryId => {
             const category = categories.find(cat => cat._id === categoryId);
             return category ? category.name : '';
         });
-    
-        // Join category names with commas
+
         return categoryNames.join(', ');
-    };    
+    };
 
-    const filteredRecipes = recipes.filter((recipe) => {
-        const title = recipe.title.toLowerCase();
-        return title.includes(searchQuery.toLowerCase());
-    });
+    const handleSearchChange = (event) => {
+        setSearchQuery(event.target.value);
+        setCurrentPage(1);
+    };
 
-      
+    const getFilteredRecipes = () => {
+        return recipes.filter((recipe) => {
+          const title = recipe.title.toLowerCase();
+          return title.includes(searchQuery.toLowerCase());
+        });
+    };
+    
+    const filteredRecipes = getFilteredRecipes();
+
+    const indexOfLastRecipe = currentPage * recipesPerPage;
+    const indexOfFirstRecipe = indexOfLastRecipe - recipesPerPage;
+    const currentRecipes = filteredRecipes.slice(indexOfFirstRecipe, indexOfLastRecipe);
+
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
     return (
         <Layout>
-                <Link className="bg-icons text-white py-1 px-2 rounded-sm" href={'/recipes/new'}>Add new recipe</Link>
-                <input
-                    type="text"
-                    className="mb-0 mt-2"
-                    placeholder="Search recipes"
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                />
+            <Link className="bg-icons text-white py-1 px-2 rounded-sm" href={'/recipes/new'}>Add new recipe</Link>
+            <input
+                type="text"
+                className="mb-0 mt-2"
+                placeholder="Search recipes"
+                value={searchQuery}
+                onChange={handleSearchChange}
+            />
             <table className="basic">
                 <thead>
                     <tr>
                         <td>Recipe name</td>
                         <td>Category</td>
-                        {/* <td>Description</td>
-                        <td>Ingredients</td>
-                        <td>Video Link</td> */}
                         <td></td>
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredRecipes.map((recipe) => (
+                    {currentRecipes.map((recipe) => (
                         <tr key={recipe._id}>
                             <td>{recipe.title}</td>
                             <td>{renderCategoryNames(recipe.category, categories)}</td>
-                            {/* <td>{recipe.description}</td>
-                            <td>
-                            {recipe.ingredients.map((ingredient, index) => (
-                                <div key={index}>
-                                    {`${ingredient.name}: ${Array.isArray(ingredient.values) ? ingredient.values.join(', ') : ingredient.values}`}
-                                </div>
-                            ))}
-                            </td>
-                            <td>{recipe.videoLink}</td> */}
                             <td className="text-center">
                                 <Link className="bg-white text-gray-600 border border-gray-200 shadow-md" href={'/recipes/edit/'+recipe._id}>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
@@ -98,7 +96,14 @@ export default function Recipes() {
                     ))}
                 </tbody>
             </table>
+            <div className="pagination-container">
+                <Pagination
+                    recipesPerPage={recipesPerPage}
+                    totalRecipes={filteredRecipes.length}
+                    currentPage={currentPage}
+                    paginate={paginate}
+                />
+            </div>
         </Layout>
     );
-
 }

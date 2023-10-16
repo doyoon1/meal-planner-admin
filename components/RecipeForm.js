@@ -88,6 +88,11 @@ export default function RecipeForm({
     async function uploadImages(ev) {
         const files = ev.target?.files;
         if (files?.length > 0) {
+            if (images.length + files.length > 3) {
+                alert("You can only upload up to three images.");
+                return;
+            }
+    
             setIsUploading(true);
             const data = new FormData();
             for (const file of files) {
@@ -100,10 +105,14 @@ export default function RecipeForm({
             setIsUploading(false);
         }
     }
-
+    
     function updateImagesOrder(images) {
         setImages(images);
     }
+
+    function removeImage(indexToRemove) {
+        setImages((prevImages) => prevImages.filter((_, index) => index !== indexToRemove));
+    }    
 
     function addIngredient() {
         setIngredients((prev) => [
@@ -254,18 +263,26 @@ export default function RecipeForm({
             )}
             <label>Images</label>
             <div className="mb-2 flex flex-wrap gap-1">
-                <ReactSortable
-                    list={images}
-                    className="flex flex-wrap gap-1"
-                    setList={updateImagesOrder}
-                >
-                    {!!images?.length &&
-                        images.map((link) => (
-                            <div key={link} className="h-24 shadow-md">
-                                <img src={link} alt="" className="rounded-lg" />
-                            </div>
-                        ))}
-                </ReactSortable>
+            <ReactSortable
+                list={images}
+                className="flex flex-wrap gap-1"
+                setList={updateImagesOrder}
+            >
+                {!!images?.length &&
+                    images.map((link, index) => (
+                        <div key={link} className="h-24 shadow-md relative">
+                            <img src={link} alt="" className="rounded-lg" />
+                            <button
+                                onClick={() => removeImage(index)}
+                                className="absolute top-0 right-0 text-white text-sm px-1 py-1 rounded-tl-md"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                                <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z" clipRule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
+                    ))}
+            </ReactSortable>
                 {isUploading && (
                     <div className="h-24 p-1 flex items-center">
                         <Spinner />
