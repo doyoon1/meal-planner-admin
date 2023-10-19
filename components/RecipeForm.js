@@ -216,7 +216,11 @@ export default function RecipeForm({
             updatedProcedure[index] = newStep;
             return updatedProcedure;
         });
-    }    
+    }
+    
+    function cancel() {
+        router.push("/recipes");
+    }
 
     return (
         <form onSubmit={saveRecipe}>
@@ -457,7 +461,10 @@ export default function RecipeForm({
                         </button>
                     </div>
                 ))}
-            <button className="btn-primary">Save</button>
+                    <button type="submit" className="btn-primary">Save</button>
+                    <button type="button" onClick={cancel} className="btn-secondary ml-1">
+                        Cancel
+                    </button>
         </form>
     );
 }

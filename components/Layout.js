@@ -14,7 +14,7 @@ export default function Layout({children}) {
         </div>
       </div>
     );
-  } 
+  }
 
   return (
     <div className="bg-background shadow-lg min-h-screen">

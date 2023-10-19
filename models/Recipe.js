@@ -9,6 +9,7 @@ const recipeSchema = new Schema({
   procedure: [{ type: String }],
   videoLink: { type: String },
   nutriValue: [{ type: Object, required: true }],
+  featured: { type: Boolean, default: false },
 }, {
   timestamps: true,
 });

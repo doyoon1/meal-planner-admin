@@ -28,6 +28,11 @@ label {
     @apply bg-green-700 text-white py-1 px-4 rounded-sm;
 }
 
+.btn-secondary {
+    @apply bg-gray-200 text-black py-1 px-4 rounded-sm shadow-md;
+}
+
+
 table.basic {
     @apply w-full mt-4 bg-white rounded-sm shadow-md;
 }
