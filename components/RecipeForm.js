@@ -11,6 +11,7 @@ export default function RecipeForm({
     ingredients: existingIngredients,
     images: existingImages,
     category: assignedCategories,
+    servings: existingServings,
     procedure: existingProcedure,
     videoLink: existingVideoLink,
     nutriValue: existingNutriValue,
@@ -26,6 +27,8 @@ export default function RecipeForm({
     const [procedure, setProcedure] = useState(existingProcedure || []);
     const [videoLink, setVideoLink] = useState(existingVideoLink || "");
     const [nutriValue, setNutriValue] = useState(existingNutriValue || []);
+    const [servings, setServings] = useState(existingServings || "");
+
 
     const router = useRouter();
 
@@ -53,23 +56,24 @@ export default function RecipeForm({
             .map((dropdown) => dropdown.selectedCategory)
             .filter((categoryId) => categoryId);
 
-        const data = {
-            title,
-            description,
-            images,
-            category: selectedCategories, // Use the selectedCategories array
-            ingredients: ingredients.map((i) => ({
-                name: i.name,
-                quantity: i.quantity,
-                measurement: i.measurement,
-            })),
-            procedure: procedure.map((step) => String(step)), // Ensure procedure is an array of strings
-            videoLink,
-            nutriValue: nutriValue.map((i) => ({
-                name: i.name,
-                value: i.value,
-            })),
-        };
+            const data = {
+                title,
+                description,
+                images,
+                category: selectedCategories,
+                ingredients: ingredients.map((i) => ({
+                    name: i.name,
+                    quantity: i.quantity,
+                    measurement: i.measurement,
+                })),
+                procedure: procedure.map((step) => String(step)),
+                videoLink,
+                nutriValue: nutriValue.map((i) => ({
+                    name: i.name,
+                    value: i.value,
+                })),
+                servings, // Add servings to the data object
+            };
 
         if (_id) {
             // Update
@@ -320,6 +324,13 @@ export default function RecipeForm({
                 value={description}
                 onChange={(ev) => setDescription(ev.target.value)}
             />
+            <label>Servings</label>
+                <input
+                    type="number"
+                    placeholder="servings"
+                    value={servings}
+                    onChange={(ev) => setServings(ev.target.value)}
+                />
             <div className="mb-2">
                 <label className="block">Ingredients</label>
                 <button
