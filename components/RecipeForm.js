@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import Spinner from "./Spinner";
 import { ReactSortable } from "react-sortablejs";
+// import { useSession } from "next-auth/react";
 
 export default function RecipeForm({
     _id,
@@ -11,11 +12,15 @@ export default function RecipeForm({
     ingredients: existingIngredients,
     images: existingImages,
     category: assignedCategories,
+    locality: existingLocality,
     servings: existingServings,
     procedure: existingProcedure,
     videoLink: existingVideoLink,
     nutriValue: existingNutriValue,
 }) {
+    // const { data: session } = useSession();
+    // console.log("Session in RecipeForm:", session);
+
     const [title, setTitle] = useState(existingTitle || "");
     const [description, setDescription] = useState(existingDescription || "");
     const [categories, setCategories] = useState([]);
@@ -25,10 +30,10 @@ export default function RecipeForm({
     const [goBack, setGoBack] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [procedure, setProcedure] = useState(existingProcedure || []);
+    const [locality, setLocality] = useState(existingLocality || []);
     const [videoLink, setVideoLink] = useState(existingVideoLink || "");
     const [nutriValue, setNutriValue] = useState(existingNutriValue || []);
     const [servings, setServings] = useState(existingServings || "");
-
 
     const router = useRouter();
 
@@ -56,24 +61,25 @@ export default function RecipeForm({
             .map((dropdown) => dropdown.selectedCategory)
             .filter((categoryId) => categoryId);
 
-            const data = {
-                title,
-                description,
-                images,
-                category: selectedCategories,
-                ingredients: ingredients.map((i) => ({
-                    name: i.name,
-                    quantity: i.quantity,
-                    measurement: i.measurement,
-                })),
-                procedure: procedure.map((step) => String(step)),
-                videoLink,
-                nutriValue: nutriValue.map((i) => ({
-                    name: i.name,
-                    value: i.value,
-                })),
-                servings, // Add servings to the data object
-            };
+        const data = {
+            title,
+            description,
+            images,
+            category: selectedCategories,
+            ingredients: ingredients.map((i) => ({
+                name: i.name,
+                quantity: i.quantity,
+                measurement: i.measurement,
+            })),
+            procedure: procedure.map((step) => String(step)),
+            videoLink,
+            nutriValue: nutriValue.map((i) => ({
+                name: i.name,
+                value: i.value,
+            })),
+            servings,
+            locality,
+        };
 
         if (_id) {
             // Update
@@ -192,6 +198,14 @@ export default function RecipeForm({
         });
     }
 
+    function handleLocalityChange(index, newLocality) {
+        setLocality((prev) => {
+            const updatedLocality = [...prev];
+            updatedLocality[index] = newLocality;
+            return updatedLocality;
+        });
+    }    
+
     function handleNutriValueValueChange(index, newNutriValue) {
         setNutriValue((prev) => {
             const updatedNutriValue = [...prev];
@@ -204,8 +218,17 @@ export default function RecipeForm({
         setNutriValue((prev) => prev.filter((_, i) => i !== indexToRemove));
     }
 
+    function removeLocality(indexToRemove) {
+        setLocality((prev) => prev.filter((_, i) => i !== indexToRemove));
+    }
+
     function addProcedureStep() {
         setProcedure((prevProcedure) => [...prevProcedure, ""]);
+    }
+
+    
+    function addLocality() {
+        setLocality((prevLocality) => [...prevLocality, ""]);
     }
     
     function removeProcedureStep(indexToRemove) {
@@ -264,11 +287,47 @@ export default function RecipeForm({
                             onClick={() => removeCategoryDropdown(dropdown.id)}
                             className="bg-red-200 text-red-600 text-sm px-4 py-1 rounded-sm"
                         >
-                            Remove
-                        </button>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>                        </button>
                     </div>
                 ))
             )}
+            <label>Locality</label>
+                    <button
+                        onClick={addLocality}
+                        type="button"
+                        className="btn-default block text-sm mb-2"
+                    >
+                        Add locality
+                    </button>
+                    {locality.length > 0 &&
+                    locality.map((locality, index) => (
+                        <div className="flex gap-1 mb-2" key={index}>
+                            <input
+                                type="text"
+                                required
+                                value={locality.name}
+                                className="mb-0"
+                                onChange={(ev) =>
+                                    handleLocalityChange(index, {
+                                        ...locality,
+                                        name: ev.target.value,
+                                    })
+                                }
+                                placeholder="locality (example: Cagayan)"
+                            />
+                            <button
+                                onClick={() => removeLocality(index)}
+                                type="button"
+                                className="bg-red-200 text-red-600 text-sm px-4 py-1 rounded-sm"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    ))}
             <label>Images</label>
             <div className="mb-2 flex flex-wrap gap-1">
             <ReactSortable
@@ -387,8 +446,9 @@ export default function RecipeForm({
                                 type="button"
                                 className="bg-red-200 text-red-600 text-sm px-4 py-1 rounded-sm"
                             >
-                                Remove
-                            </button>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>                            </button>
                         </div>
                     ))}
                     <label>Procedure</label>
@@ -414,8 +474,9 @@ export default function RecipeForm({
                                 type="button"
                                 className="bg-red-200 text-red-600 text-sm px-4 py-1 rounded-sm"
                             >
-                                Remove
-                            </button>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>                            </button>
                         </div>
                     ))}
                 <label>Video URL</label>
@@ -468,7 +529,9 @@ export default function RecipeForm({
                             type="button"
                             className="bg-red-200 text-red-600 text-sm px-4 py-1 rounded-sm"
                         >
-                            Remove
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
                         </button>
                     </div>
                 ))}
