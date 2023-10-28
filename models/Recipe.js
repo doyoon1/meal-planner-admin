@@ -5,7 +5,6 @@ const recipeSchema = new Schema({
   description: { type: String, required: true },
   images: [{ type: String }],
   category: [{ type: mongoose.Types.ObjectId, ref: 'Category' }],
-  locality: [{ type: Object, required: true }],
   servings: { type: Number, default: 1 },
   ingredients: [{ type: Object, required: true }],
   procedure: [{ type: String }],

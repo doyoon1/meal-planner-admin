@@ -17,13 +17,12 @@ export default async function handle(req, res) {
     } 
 
     if (method === 'POST') {
-        const {title, description, images, category, servings, ingredients, locality, procedure, videoLink, nutriValue} = req.body;
+        const {title, description, images, category, servings, ingredients, procedure, videoLink, nutriValue} = req.body;
         const productDoc  = await Recipe.create({
             title,
             description,
             images,
             category,
-            locality,
             servings,
             ingredients,
             procedure,
@@ -42,13 +41,12 @@ export default async function handle(req, res) {
     }
 
     if (method === 'PUT') {
-        const {title, description, images, category, servings, ingredients, locality, procedure, videoLink, nutriValue,  _id} = req.body;
+        const {title, description, images, category, servings, ingredients, procedure, videoLink, nutriValue,  _id} = req.body;
         await Recipe.updateOne({_id}, {
             title, 
             description, 
             images, 
             category, 
-            locality,
             servings,
             ingredients,
             procedure, 

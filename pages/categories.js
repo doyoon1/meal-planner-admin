@@ -8,6 +8,7 @@ import Pagination from "@/components/Pagination"
 function Categories({ swal }) {
   const [editedCategory, setEditedCategory] = useState(null);
   const [name, setName] = useState('');
+  const [parentCategory, setParentCategory] = useState(null); 
   const [categories, setCategories] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
@@ -23,37 +24,68 @@ function Categories({ swal }) {
     });
   }
 
+  function selectParentCategory(category) {
+    setParentCategory(category);
+  }
+
   async function saveCategory(ev) {
     ev.preventDefault();
-    const data = { name };
+    const data = { name, parent: parentCategory ? parentCategory._id : null };
   
-    // Check if the category with the same name already exists in the categories list
-    const isDuplicateCategory = categories.some(category => category.name.toLowerCase() === name.toLowerCase());
+    if (editedCategory) {
+      // When editing, only check for duplicate category name if the name has changed
+      if (editedCategory.name !== name) {
+        const isDuplicateCategory = categories.some(category => category.name.toLowerCase() === name.toLowerCase());
   
-    if (isDuplicateCategory) {
-      // Display an alert message for duplicate category
-      swal.fire({
-        icon: 'error',
-        title: 'Duplicate Category',
-        text: 'This category already exists in the table.',
-      });
-    } else {
-      if (editedCategory) {
-        data._id = editedCategory._id;
-        await axios.put('/api/categories', data);
-        setEditedCategory(null);
-      } else {
-        await axios.post('/api/categories', data);
+        if (isDuplicateCategory) {
+          // Display an alert message for duplicate category
+          swal.fire({
+            icon: 'error',
+            title: 'Duplicate Category',
+            text: 'This category already exists in the table.',
+          });
+          return; // Stop execution if it's a duplicate
+        }
       }
-      setName('');
-      fetchCategories();
+  
+      data._id = editedCategory._id;
+  
+      await axios.put('/api/categories', data);
+      setEditedCategory(null);
+    } else {
+      // When creating a new category, check for duplicate category name
+      const isDuplicateCategory = categories.some(category => category.name.toLowerCase() === name.toLowerCase());
+  
+      if (isDuplicateCategory) {
+        // Display an alert message for duplicate category
+        swal.fire({
+          icon: 'error',
+          title: 'Duplicate Category',
+          text: 'This category already exists in the table.',
+        });
+        return; // Stop execution if it's a duplicate
+      }
+  
+      await axios.post('/api/categories', data);
+      setParentCategory(null);
     }
-  }  
+  
+    setName('');
+    fetchCategories();
+  }
+  
 
   function editCategory(category) {
     setEditedCategory(category);
     setName(category.name);
+  
+    if (category.parent) {
+      setParentCategory(categories.find(cat => cat._id === category.parent));
+    } else {
+      setParentCategory(null);
+    }
   }
+  
 
   function deleteCategory(category) {
     swal.fire({
@@ -96,38 +128,51 @@ function Categories({ swal }) {
   return (
     <Layout>
       <h1><b>Categories</b></h1>
-      <label>
-        {editedCategory
-          ? `Edit ${editedCategory.name}`
-          : 'Create new category'}
-      </label>
-      <form onSubmit={saveCategory} className="flex gap-1 mb-8">
-        <input
-          className="mb-0"
-          type="text"
-          placeholder={'Category name'}
-          onChange={ev => setName(ev.target.value)}
-          value={name} />
-        <button type="submit" className="btn-primary text-sm">Save</button>
-      </form>
-      <input
-        type="text"
-        className="mb-0"
-        placeholder="Search categories"
-        value={searchQuery}
-        onChange={handleSearchChange}
-      />
+            <label>
+              {editedCategory
+                ? `Edit ${editedCategory.name}`
+                : 'Create new category'}
+            </label>
+            <form onSubmit={saveCategory} className="flex gap-1 mb-8">
+              <input
+                className="mb-0"
+                type="text"
+                placeholder={'Category name'}
+                onChange={ev => setName(ev.target.value)}
+                value={name} />
+              <select
+                className="mb-0"
+                onChange={(ev) => selectParentCategory(categories.find(cat => cat._id === ev.target.value))}
+              >
+                <option value="">no parent category</option>
+                {categories.map(category => (
+                  <option key={category._id} value={category._id}>{category.name}</option>
+                ))}
+              </select>
+              <button type="submit" className="btn-primary text-sm">Save</button>
+            </form>
+            <input
+              type="text"
+              className="mb-0"
+              placeholder="Search categories"
+              value={searchQuery}
+              onChange={handleSearchChange}
+            />
       <table className="basic mt-4">
         <thead>
           <tr>
             <td>Category name</td>
+            <td>Parent Category</td>
             <td></td>
           </tr>
         </thead>
         <tbody>
           {currentCategory.map(category => (
             <tr key={category._id}>
-              <td>{category.name}</td>
+            <td>{category.name}</td>
+            <td>
+              {category.parent ? categories.find(cat => cat._id === category.parent).name : ''}
+            </td>
               <td className="text-center">
                 <button
                   className="bg-white text-gray-600 border border-gray-200 shadow-md"
