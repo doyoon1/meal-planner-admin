@@ -67,9 +67,9 @@ function Categories({ swal }) {
       }
   
       await axios.post('/api/categories', data);
-      setParentCategory(null);
     }
   
+    setParentCategory(null);
     setName('');
     fetchCategories();
   }
@@ -171,7 +171,7 @@ function Categories({ swal }) {
             <tr key={category._id}>
             <td>{category.name}</td>
             <td>
-              {category.parent ? categories.find(cat => cat._id === category.parent).name : ''}
+              {category.parent && categories.find(cat => cat._id === category.parent)?.name || ''}
             </td>
               <td className="text-center">
                 <button

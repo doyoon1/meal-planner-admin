@@ -3,7 +3,6 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import Spinner from "./Spinner";
 import { ReactSortable } from "react-sortablejs";
-// import { useSession } from "next-auth/react";
 
 export default function RecipeForm({
     _id,
