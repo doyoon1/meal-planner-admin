@@ -15,6 +15,7 @@ export default function RecipeForm({
     procedure: existingProcedure,
     videoLink: existingVideoLink,
     nutriValue: existingNutriValue,
+    citation: existingCitation,
 }) {
     // const { data: session } = useSession();
     // console.log("Session in RecipeForm:", session);
@@ -31,6 +32,7 @@ export default function RecipeForm({
     const [videoLink, setVideoLink] = useState(existingVideoLink || "");
     const [nutriValue, setNutriValue] = useState(existingNutriValue || []);
     const [servings, setServings] = useState(existingServings || "");
+    const [citation, setCitation] = useState(existingCitation || "");
 
     const router = useRouter();
 
@@ -63,6 +65,7 @@ export default function RecipeForm({
             description,
             images,
             category: selectedCategories,
+            citation,
             ingredients: ingredients.map((i) => ({
                 name: i.name,
                 quantity: i.quantity,
@@ -326,6 +329,13 @@ export default function RecipeForm({
                 placeholder="description"
                 value={description}
                 onChange={(ev) => setDescription(ev.target.value)}
+            />
+            <label>Citation</label>
+            <input
+                type="text"
+                placeholder="Enter citation"
+                value={citation}
+                onChange={(ev) => setCitation(ev.target.value)}
             />
             <label>Servings</label>
                 <input
