@@ -2,6 +2,7 @@ import { useSession, signIn } from "next-auth/react"
 import Nav from "@/components/Nav"
 import { useState } from "react";
 import Logo from "@/components/Logo"
+import GoogleButton from 'react-google-button'
 
 export default function Layout({children}) {
   const [showNav, setShowNav] = useState(false);
@@ -9,12 +10,23 @@ export default function Layout({children}) {
   if (!session) {
     return (
       <div className="bg-background w-screen h-screen flex items-center">
-        <div className="text-center w-full">
-          <button onClick={()=> signIn('google')} className="bg-white border-solid border-2 border-gray-500 p-2 px-4 rounded-lg">Login with Google</button>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap"
+          rel="stylesheet"
+        />
+        <style jsx>{`
+          .font-poppins {
+            font-family: 'Poppins', sans-serif;
+          }
+        `}</style>
+        <div className="text-center w-full flex flex-col items-center justify-center">
+          <h1 className="text-4xl font-bold mb-4 font-poppins text-gray-900">MealGrub Admin</h1>
+          <GoogleButton onClick={() => signIn('google')}>Login with Google</GoogleButton>
         </div>
       </div>
     );
   }
+
 
   return (
     <div className="bg-background shadow-lg min-h-screen">

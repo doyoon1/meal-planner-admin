@@ -30,7 +30,7 @@ export default function Recipes() {
         const categoryNames = categoryIds.map(categoryId => {
             const category = categories.find(cat => cat._id === categoryId);
             return category ? category.name : '';
-        });
+    });
 
         return categoryNames.join(', ');
     };

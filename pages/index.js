@@ -1,6 +1,7 @@
 import Layout from "@/components/Layout";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import Select from 'react-select';
 
 export default function Dashboard() {
   const [totalRecipes, setTotalRecipes] = useState(0);
@@ -8,44 +9,67 @@ export default function Dashboard() {
   const [totalAdminEmails, setTotalAdminEmails] = useState(0);
   const [recipes, setRecipes] = useState([]);
   const [message, setMessage] = useState("");
-
-  const [featuredRecipeId, setFeaturedRecipeId] = useState("");
+  const [selectedRecipes, setSelectedRecipes] = useState([]);
+  
   const router = useRouter();
+
   const handleFeatureRecipe = async () => {
     try {
+      if (selectedRecipes.length < 3) {
+        setMessage("Select at least 3 recipes to feature.");
+        return;
+      }
+  
+      const recipeIds = selectedRecipes.map((recipe) => recipe.value);
+  
       const response = await fetch("/api/featured", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ recipeId: featuredRecipeId }),
+        body: JSON.stringify({ recipeIds }),
       });
   
-      // Log the response status and data
-      console.log('Response Status:', response.status);
       const data = await response.json();
-      console.log('Response Data:', data);
+  
+      console.log('Response Data:', data); // Log the data received from the API
   
       if (response.ok) {
-        if (data.recipe) {
-          const updatedRecipe = data.recipe;
-          // Set the featured recipe in your client-side state
-          setFeaturedRecipeId(updatedRecipe._id);
-          console.log('Featured Field:', updatedRecipe.featured); // Log the "featured" field
-          setMessage("Recipe featured successfully");
+        if (data.recipes && Array.isArray(data.recipes)) {
+          // Update the state with the new list of featured recipes
+          setSelectedRecipes(data.recipes.map((recipe) => ({ value: recipe._id, label: recipe.title })));
+          setMessage("Recipes featured successfully");
         } else {
-          // Handle the case where the response doesn't include a recipe (already featured case)
           setMessage(data.message);
         }
       } else {
         setMessage(data.error);
       }
     } catch (error) {
-      console.error("Error featuring recipe:", error);
-      setMessage("Error featuring recipe.");
+      console.error("Error featuring recipes:", error);
+      setMessage("Error featuring recipes.");
     }
+  };  
+
+  const handleSelectChange = (selectedOptions) => {
+    // Check if the length exceeds 3
+    if (selectedOptions.length > 3) {
+      // You can either remove the last selected item or prevent further selections
+      // Uncomment one of the following lines based on your preference
+
+      // Remove the last selected item
+      selectedOptions.pop();
+      setSelectedRecipes(selectedOptions);
+
+      // Or prevent further selections
+      // setMessage("You can select up to 3 recipes.");
+      // setSelectedRecipes([]);
+    } else {
+      setSelectedRecipes(selectedOptions);
+    }
+    localStorage.setItem('selectedRecipes', JSON.stringify(selectedOptions));
   };
-  
+
   useEffect(() => {
     // Fetch and set the total number of recipes
     fetch("/api/recipes")
@@ -55,10 +79,10 @@ export default function Dashboard() {
         // Set the list of available recipes
         setRecipes(data);
 
-        // Find the recipe with "featured" set to true and set it as the initial value
-        const featuredRecipe = data.find((recipe) => recipe.featured === true);
-        if (featuredRecipe) {
-          setFeaturedRecipeId(featuredRecipe._id);
+        // Find the recipes with "featured" set to true and set them as the initial values
+        const featuredRecipes = data.filter((recipe) => recipe.featured === true);
+        if (featuredRecipes.length > 0) {
+          setSelectedRecipes(featuredRecipes.map((recipe) => ({ value: recipe._id, label: recipe.title })));
         }
       });
 
@@ -73,6 +97,14 @@ export default function Dashboard() {
       .then((data) => setTotalAdminEmails(data.length));
   }, []);
 
+  useEffect(() => {
+    // Retrieve selected recipes from localStorage on component mount
+    const storedSelectedRecipes = localStorage.getItem('selectedRecipes');
+    if (storedSelectedRecipes) {
+      setSelectedRecipes(JSON.parse(storedSelectedRecipes));
+    }
+  }, []);
+
   return (
     <Layout>
       <div className="text-gray-900 flex justify-between text-lg">
@@ -83,23 +115,19 @@ export default function Dashboard() {
       <div className="flex flex-col justify-center mt-16 space-x-4">
         <div className="bg-gray-200 rounded-lg p-4 text-center">
           <h3 className="text-xl font-semibold">Select Featured Recipe</h3>
-          <select
-            className="w-full border p-2 rounded-md"
-            value={featuredRecipeId}
-            onChange={(e) => setFeaturedRecipeId(e.target.value)}
-          >
-            <option value="">Select a recipe</option>
-            {recipes.map((recipe) => (
-              <option key={recipe._id} value={recipe._id}>
-                {recipe.title}
-              </option>
-            ))}
-          </select>
+          <Select
+            closeMenuOnSelect={false}
+            isMulti
+            className="w-full"
+            options={recipes.map((recipe) => ({ value: recipe._id, label: recipe.title }))}
+            value={selectedRecipes}
+            onChange={handleSelectChange}
+          />
           <button
             className="mt-2 bg-blue-500 text-white p-2 rounded-md"
             onClick={handleFeatureRecipe}
           >
-            Feature Recipe
+            Feature Recipes
           </button>
         </div>
         <div className="message-box">
