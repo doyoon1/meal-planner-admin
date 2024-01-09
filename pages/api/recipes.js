@@ -1,24 +1,25 @@
-import { Recipe } from "@/models/Recipe"
+// /api/recipes
+import { Recipe } from "@/models/Recipe";
 import { RecipeLog } from "@/models/Log";
 import { mongooseConnect } from "@/lib/mongoose";
 import { getSession } from "next-auth/react";
 
 export default async function handle(req, res) {
-    const {method} = req;
+    const { method } = req;
+    const { userName } = req.query;
     await mongooseConnect();
-    const session = await getSession({ req });
 
-    if (method === 'GET') {
+    if (method === "GET") {
         if (req.query.id) {
-            res.json(await Recipe.findOne({_id:req.query.id}))
+            res.json(await Recipe.findOne({ _id: req.query.id }));
         } else {
             res.json(await Recipe.find());
         }
-    } 
+    }
 
-    if (method === 'POST') {
-        const {title, description, images, category, servings, ingredients, procedure, videoLink, nutriValue, citation} = req.body;
-        const productDoc  = await Recipe.create({
+    if (method === "POST") {
+        const { title, description, images, category, servings, ingredients, procedure, videoLink, nutriValue, citation, userName } = req.body;
+        const productDoc = await Recipe.create({
             title,
             description,
             images,
@@ -32,51 +33,51 @@ export default async function handle(req, res) {
         });
 
         // Create a log entry for the 'add' action
-        // await RecipeLog.create({
-        //     action: 'add',
-        //     recipeId: req.query.id,
-        //     userEmail: session?.user?.email, // Ensure userEmail is set from the session
-        // });
+        await RecipeLog.create({
+            action: 'add',
+            recipe: productDoc._id,
+            userName: userName || 'Unknown User',
+        });
 
         res.json(productDoc);
     }
 
-    if (method === 'PUT') {
-        const {title, description, images, category, servings, ingredients, procedure, videoLink, nutriValue, citation,  _id} = req.body;
-        await Recipe.updateOne({_id}, {
-            title, 
-            description, 
-            images, 
-            category, 
+    if (method === "PUT") {
+        const { title, description, images, category, servings, ingredients, procedure, videoLink, nutriValue, citation, _id, userName } = req.body;
+        await Recipe.updateOne({ _id }, {
+            title,
+            description,
+            images,
+            category,
             servings,
             ingredients,
-            procedure, 
+            procedure,
             videoLink,
             nutriValue,
             citation,
         });
 
         // Create a log entry for the 'edit' action
-        // await RecipeLog.create({
-        //     action: 'edit',
-        //     recipeId: _id,
-        //     userEmail: session?.user?.email, // Ensure userEmail is set from the session
-        // });
+        await RecipeLog.create({
+            action: 'edit',
+            recipe: _id,
+            userName: userName || 'Unknown User',
+        });
 
         res.json(true);
     }
 
-    if (method === 'DELETE') {
+    if (method === "DELETE") {
         if (req.query.id) {
-            await Recipe.deleteOne({_id:req.query?.id});
-
+            await Recipe.deleteOne({ _id: req.query.id });
+    
             // Create a log entry for the 'delete' action
             await RecipeLog.create({
                 action: 'delete',
-                recipeId: req.query.id,
-                userEmail: session?.user?.email,
+                recipe: req.query.id,
+                userName: userName || 'Unknown User',
             });
-            
+    
             res.json(true);
         }
     }

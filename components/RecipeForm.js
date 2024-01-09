@@ -36,7 +36,7 @@ export default function RecipeForm({
     const [citation, setCitation] = useState(existingCitation || "");
 
     const session = useSession();
-    console.log(session);
+    // console.log(session.data.user.name);
 
     const router = useRouter();
 
@@ -59,11 +59,12 @@ export default function RecipeForm({
 
     async function saveRecipe(ev) {
         ev.preventDefault();
+    
         // Filter out empty values from selected categories
         const selectedCategories = categoryDropdowns
             .map((dropdown) => dropdown.selectedCategory)
             .filter((categoryId) => categoryId);
-
+    
         const data = {
             title,
             description,
@@ -82,8 +83,9 @@ export default function RecipeForm({
                 value: i.value,
             })),
             servings,
+            userName: session?.data?.user?.name || 'Unknown User', // Add this line to include userName
         };
-
+    
         if (_id) {
             // Update
             await axios.put("/api/recipes", { ...data, _id });
@@ -91,8 +93,9 @@ export default function RecipeForm({
             // Create
             await axios.post("/api/recipes", data);
         }
+    
         setGoBack(true);
-    }
+    }    
 
     if (goBack) {
         router.push("/recipes");

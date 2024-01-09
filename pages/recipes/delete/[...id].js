@@ -2,11 +2,14 @@ import Layout from "@/components/Layout";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useSession } from "next-auth/react";
 
 export default function deleteRecipePage() {
     const router = useRouter();
     const [recipeInfo, setRecipeInfo] = useState();
     const {id} = router.query;
+    const { data:session } = useSession();    
+    
     useEffect(() => {
         if (!id) {
             return;
@@ -19,10 +22,13 @@ export default function deleteRecipePage() {
     function goBack() {
         router.push('/recipes');
     }
+
     async function deleteRecipe() {
-        await axios.delete('/api/recipes?id='+id);
+        const userName = session?.user?.name || 'Unknown User';
+        await axios.delete(`/api/recipes?id=${id}&userName=${encodeURIComponent(userName)}`);
         goBack();
     }
+
     return (
         <Layout>
             <h1 className="text-center mt-10">Do you really want to delete 
