@@ -5,11 +5,11 @@ import clientPromise from '@/lib/mongodb';
 
 export const authOptions = {
   secret: process.env.NEXTAUTH_SECRET,
-  site: process.env.NEXTAUTH_URL || "http://localhost:3000",
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_ID,
-      clientSecret: process.env.GOOGLE_SECRET
+      clientSecret: process.env.GOOGLE_SECRET,
+      callbackUrl: 'https://mg-admin.onrender.com/api/auth/callback/google', 
     }),
   ],
   adapter: MongoDBAdapter(clientPromise),
