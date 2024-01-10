@@ -4,6 +4,7 @@ import GoogleProvider from 'next-auth/providers/google';
 import clientPromise from '@/lib/mongodb';
 
 export const authOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_ID,
@@ -25,7 +26,6 @@ export const authOptions = {
       }
     },
   },
-
 };
 
 export default NextAuth(authOptions);
