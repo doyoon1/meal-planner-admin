@@ -2,6 +2,7 @@ import Link from "next/link"
 import { useRouter } from "next/router";
 import { useSession, signOut } from "next-auth/react"
 import Logo from "@/components/Logo"
+import Swal from "sweetalert2";
 
 export default function Nav({show}) {
     const inactiveLink = 'flex gap-1 p-1';
@@ -13,9 +14,23 @@ export default function Nav({show}) {
     const {pathname} = router;
 
     async function logout() {
-        await router.push('/');
-        await signOut();
-    }
+        // Show SweetAlert for confirmation
+        const result = await Swal.fire({
+          title: "Are you sure?",
+          text: "You want to log out?",
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Yes, log out!",
+        });
+      
+        if (result.isConfirmed) {
+          // Log out and navigate to the home page
+          await signOut();
+          await router.push('/');
+        }
+    }      
 
     const { data: session } = useSession()
     if(session) {

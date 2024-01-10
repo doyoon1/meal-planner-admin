@@ -4,8 +4,9 @@ const adminEmailSchema = new Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
-  },
+    unique: true,}
+}, {
+    timestamps: true,
 });
 
 export const Admin = models.Admin || model('Admin', adminEmailSchema);

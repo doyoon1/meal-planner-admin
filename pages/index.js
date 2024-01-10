@@ -13,63 +13,6 @@ export default function Dashboard() {
   
   const router = useRouter();
 
-  const handleFeatureRecipe = async () => {
-    try {
-      if (selectedRecipes.length < 3) {
-        setMessage("Select at least 3 recipes to feature.");
-        return;
-      }
-  
-      const recipeIds = selectedRecipes.map((recipe) => recipe.value);
-  
-      const response = await fetch("/api/featured", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ recipeIds }),
-      });
-  
-      const data = await response.json();
-  
-      console.log('Response Data:', data); // Log the data received from the API
-  
-      if (response.ok) {
-        if (data.recipes && Array.isArray(data.recipes)) {
-          // Update the state with the new list of featured recipes
-          setSelectedRecipes(data.recipes.map((recipe) => ({ value: recipe._id, label: recipe.title })));
-          setMessage("Recipes featured successfully");
-        } else {
-          setMessage(data.message);
-        }
-      } else {
-        setMessage(data.error);
-      }
-    } catch (error) {
-      console.error("Error featuring recipes:", error);
-      setMessage("Error featuring recipes.");
-    }
-  };  
-
-  const handleSelectChange = (selectedOptions) => {
-    // Check if the length exceeds 3
-    if (selectedOptions.length > 3) {
-      // You can either remove the last selected item or prevent further selections
-      // Uncomment one of the following lines based on your preference
-
-      // Remove the last selected item
-      selectedOptions.pop();
-      setSelectedRecipes(selectedOptions);
-
-      // Or prevent further selections
-      // setMessage("You can select up to 3 recipes.");
-      // setSelectedRecipes([]);
-    } else {
-      setSelectedRecipes(selectedOptions);
-    }
-    localStorage.setItem('selectedRecipes', JSON.stringify(selectedOptions));
-  };
-
   useEffect(() => {
     // Fetch and set the total number of recipes
     fetch("/api/recipes")
@@ -113,23 +56,6 @@ export default function Dashboard() {
         </h2>
       </div>
       <div className="flex flex-col justify-center mt-16 space-x-4">
-        <div className="bg-gray-200 rounded-lg p-4 text-center">
-          <h3 className="text-xl font-semibold">Select Featured Recipe</h3>
-          <Select
-            closeMenuOnSelect={false}
-            isMulti
-            className="w-full"
-            options={recipes.map((recipe) => ({ value: recipe._id, label: recipe.title }))}
-            value={selectedRecipes}
-            onChange={handleSelectChange}
-          />
-          <button
-            className="mt-2 bg-blue-500 text-white p-2 rounded-md"
-            onClick={handleFeatureRecipe}
-          >
-            Feature Recipes
-          </button>
-        </div>
         <div className="message-box">
           <p className={`message ${message.startsWith("Error") ? "error" : "success"}`}>
             {message}

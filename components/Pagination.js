@@ -7,11 +7,11 @@ function Pagination({ recipesPerPage, totalRecipes, currentPage, paginate }) {
     }
 
     const calculatePageRange = () => {
-        const start = Math.max(1, currentPage - pageRange);
+        const start = Math.max(1, currentPage - pageRange + 1);
         const end = Math.min(pageNumbers.length, currentPage + pageRange);
-
+      
         return pageNumbers.slice(start - 1, end);
-    };
+    };      
 
     const displayedPageNumbers = calculatePageRange();
 

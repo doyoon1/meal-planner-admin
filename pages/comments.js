@@ -1,7 +1,7 @@
 import Layout from "@/components/Layout";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Pagination from "@/components/Pagination";
+import Pagination from "@/components/CommentsPagination";
 import Swal from "sweetalert2";
 
 export default function Comments() {
@@ -25,7 +25,21 @@ export default function Comments() {
     }
   };
 
-  const sortedComments = [...comments].sort((a, b) => a.approved - b.approved);
+  // Custom sorting function
+  const customSort = (a, b) => {
+    // Sort by approval status (approved comments come last)
+    if (a.approved && !b.approved) {
+      return 1;
+    } else if (!a.approved && b.approved) {
+      return -1;
+    }
+
+    // If both comments have the same approval status, sort by date (newest first)
+    return new Date(b.createdAt) - new Date(a.createdAt);
+  };
+
+  const sortedComments = [...comments].sort(customSort);
+
   const currentComments = sortedComments.slice(indexOfFirstComment, indexOfLastComment);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -111,7 +125,7 @@ export default function Comments() {
           {currentComments.map((comment) => (
             <tr key={comment._id}>
               <td>{comment.user.firstName} {comment.user.lastName}</td>
-              <td>{comment.recipe.title}</td>
+              <td>{comment.recipe ? comment.recipe.title : 'Deleted Recipe'}</td>
               <td>{comment.text}</td>
               <td>{new Date(comment.createdAt).toLocaleString()}</td>
               <td>
@@ -146,7 +160,7 @@ export default function Comments() {
           itemsPerPage={commentsPerPage}
           totalItems={comments.length}
           currentPage={currentPage}
-          paginate={paginate}
+          onPageChange={paginate}
         />
       </div>
     </Layout>

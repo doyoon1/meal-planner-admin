@@ -11,18 +11,29 @@ export default function Logs() {
     const logsPerPage = 10;
 
     useEffect(() => {
-        axios.get('/api/logs').then(response => {
-            setLogs(response.data);
-        });
-
-        // Fetch all recipes and store them in the state
-        axios.get('/api/recipes').then(response => {
-            const recipesMap = {};
-            response.data.forEach(recipe => {
-                recipesMap[recipe._id] = recipe.title;
-            });
-            setRecipes(recipesMap);
-        });
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('/api/logs');
+                const sortedLogs = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                setLogs(sortedLogs);
+            } catch (error) {
+                console.error("Error fetching logs:", error);
+            }
+    
+            // Fetch all recipes and store them in the state
+            try {
+                const response = await axios.get('/api/recipes');
+                const recipesMap = {};
+                response.data.forEach(recipe => {
+                    recipesMap[recipe._id] = recipe.title;
+                });
+                setRecipes(recipesMap);
+            } catch (error) {
+                console.error("Error fetching recipes:", error);
+            }
+        };
+    
+        fetchData();
     }, []);
 
     const indexOfLastLog = currentPage * logsPerPage;
@@ -94,8 +105,8 @@ export default function Logs() {
             </table>
             <div className="pagination-container">
                 <Pagination
-                    itemsPerPage={logsPerPage}
-                    totalItems={logs.length}
+                    recipesPerPage={logsPerPage}
+                    totalRecipes={logs.length}
                     currentPage={currentPage}
                     paginate={paginate}
                 />

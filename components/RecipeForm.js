@@ -4,6 +4,7 @@ import axios from "axios";
 import Spinner from "./Spinner";
 import { ReactSortable } from "react-sortablejs";
 import { useSession } from "next-auth/react";
+import Swal from "sweetalert2";
 
 export default function RecipeForm({
     _id,
@@ -59,6 +60,16 @@ export default function RecipeForm({
 
     async function saveRecipe(ev) {
         ev.preventDefault();
+    
+        // Validation
+        if (!title || !description || !images.length || ingredients.some(i => !i.name || !i.quantity || !i.measurement)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Please fill in all required fields and add at least 1 image!',
+            });
+            return;
+        }
     
         // Filter out empty values from selected categories
         const selectedCategories = categoryDropdowns
@@ -265,11 +276,13 @@ export default function RecipeForm({
                         >
                             <option value="">Select category</option>
                             {categories.length > 0 &&
-                                categories.map((c) => (
-                                    <option key={c._id} value={c._id}>
-                                        {c.name}
-                                    </option>
-                                ))}
+                                categories
+                                    .sort((a, b) => a.name.localeCompare(b.name))
+                                    .map((c) => (
+                                        <option key={c._id} value={c._id}>
+                                            {c.name}
+                                        </option>
+                                    ))}
                         </select>
                         <button
                             type="button"

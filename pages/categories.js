@@ -111,9 +111,11 @@ function Categories({ swal }) {
   };
 
   const getFilteredCategories = () => {
-    return categories.filter((category) => {
-      const categoryName = category.name.toLowerCase();
-      return categoryName.includes(searchQuery.toLowerCase());
+    const sortedCategories = categories.sort((a, b) => a.name.localeCompare(b.name));
+
+    return sortedCategories.filter((category) => {
+        const categoryName = category.name.toLowerCase();
+        return categoryName.includes(searchQuery.toLowerCase());
     });
   };
 
