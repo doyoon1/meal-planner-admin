@@ -78,7 +78,7 @@ export default function Logs() {
                         <td>Recipe</td>
                         <td>Full Name</td>
                         <td>Date</td>
-                        <td>Actions</td>
+                        {/* <td>Actions</td> */}
                     </tr>
                 </thead>
                 <tbody>
@@ -88,7 +88,7 @@ export default function Logs() {
                             <td>{recipes[log.recipe] || 'Unknown Recipe'}</td>
                             <td>{log.userName}</td>
                             <td>{new Date(log.createdAt).toLocaleString()}</td>
-                            <td>
+                            {/* <td>
                                 <button
                                     onClick={() => handleDelete(log._id)}
                                     className="bg-red-200 text-red-600 shadow-md"
@@ -98,7 +98,7 @@ export default function Logs() {
                                     </svg>
                                     Delete
                                 </button>
-                            </td>
+                            </td> */}
                         </tr>
                     ))}
                 </tbody>
