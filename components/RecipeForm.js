@@ -18,9 +18,9 @@ export default function RecipeForm({
     videoLink: existingVideoLink,
     nutriValue: existingNutriValue,
     citation: existingCitation,
+    citationLink: existingCitationLink,
+    cookingTime: existingCookingTime,
 }) {
-    // const { data: session } = useSession();
-    // console.log("Session in RecipeForm:", session);
 
     const [title, setTitle] = useState(existingTitle || "");
     const [description, setDescription] = useState(existingDescription || "");
@@ -35,10 +35,10 @@ export default function RecipeForm({
     const [nutriValue, setNutriValue] = useState(existingNutriValue || []);
     const [servings, setServings] = useState(existingServings || "");
     const [citation, setCitation] = useState(existingCitation || "");
+    const [citationLink, setCitationLink] = useState(existingCitationLink || "");
+    const [cookingTime, setCookingTime] = useState(existingCookingTime || "");
 
     const session = useSession();
-    // console.log(session.data.user.name);
-
     const router = useRouter();
 
     useEffect(() => {
@@ -82,6 +82,8 @@ export default function RecipeForm({
             images,
             category: selectedCategories,
             citation,
+            citationLink,
+            cookingTime,
             ingredients: ingredients.map((i) => ({
                 name: i.name,
                 quantity: i.quantity,
@@ -94,7 +96,7 @@ export default function RecipeForm({
                 value: i.value,
             })),
             servings,
-            userName: session?.data?.user?.name || 'Unknown User', // Add this line to include userName
+            userName: session?.data?.user?.name || 'Unknown User',
         };
     
         if (_id) {
@@ -341,7 +343,6 @@ export default function RecipeForm({
                     <input type="file" onChange={uploadImages} className="hidden" />
                 </label>
             </div>
-
             <label>Description</label>
             <textarea
                 type="text"
@@ -350,12 +351,26 @@ export default function RecipeForm({
                 value={description}
                 onChange={(ev) => setDescription(ev.target.value)}
             />
+            <label>Cooking Time</label>
+            <input
+                type="text"
+                placeholder="Enter cooking time"
+                value={cookingTime}
+                onChange={(ev) => setCookingTime(ev.target.value)}
+            />
             <label>Citation</label>
             <input
                 type="text"
                 placeholder="Enter citation"
                 value={citation}
                 onChange={(ev) => setCitation(ev.target.value)}
+            />
+            <label>Citation Link</label>
+            <input
+                type="text"
+                placeholder="Enter citation link"
+                value={citationLink}
+                onChange={(ev) => setCitationLink(ev.target.value)}
             />
             <label>Servings</label>
                 <input

@@ -18,7 +18,7 @@ export default async function handle(req, res) {
     }
 
     if (method === "POST") {
-        const { title, description, images, category, servings, ingredients, procedure, videoLink, nutriValue, citation, userName } = req.body;
+        const { title, description, images, category, servings, ingredients, procedure, videoLink, nutriValue, citation, citationLink, cookingTime, userName } = req.body;
         const productDoc = await Recipe.create({
             title,
             description,
@@ -30,6 +30,8 @@ export default async function handle(req, res) {
             videoLink,
             nutriValue,
             citation,
+            citationLink,
+            cookingTime,
         });
 
         // Create a log entry for the 'add' action
@@ -43,7 +45,7 @@ export default async function handle(req, res) {
     }
 
     if (method === "PUT") {
-        const { title, description, images, category, servings, ingredients, procedure, videoLink, nutriValue, citation, _id, userName } = req.body;
+        const { title, description, images, category, servings, ingredients, procedure, videoLink, nutriValue, citation, citationLink, cookingTime, _id, userName } = req.body;
         await Recipe.updateOne({ _id }, {
             title,
             description,
@@ -55,6 +57,8 @@ export default async function handle(req, res) {
             videoLink,
             nutriValue,
             citation,
+            citationLink,
+            cookingTime,
         });
 
         // Create a log entry for the 'edit' action

@@ -70,7 +70,7 @@ export default function Logs() {
 
     return (
         <Layout>
-            <h1><b>Audit Log</b></h1>
+            <h1><b>Logs</b></h1>
             <table className="basic">
                 <thead>
                     <tr>

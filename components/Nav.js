@@ -28,7 +28,7 @@ export default function Nav({show}) {
         if (result.isConfirmed) {
           // Log out and navigate to the home page
           await signOut();
-          await router.push('/');
+          await router.push(`${window.location.origin}/`);
         }
     }      
 

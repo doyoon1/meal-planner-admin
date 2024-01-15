@@ -4,8 +4,7 @@ import GoogleProvider from 'next-auth/providers/google';
 import clientPromise from '@/lib/mongodb';
 
 export const authOptions = {
-  secret: process.env.NEXTAUTH_SECRET,
-  site: process.env.NEXTAUTH_URL || "http://localhost:3000",
+  secret: process.env.SECRET,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_ID,
@@ -30,18 +29,3 @@ export const authOptions = {
 };
 
 export default NextAuth(authOptions);
-
-// export async function isAdminRequest(req, res) {
-//   const session = await getServerSession(req, res, authOptions);
-//   const adminEmails = await Admin.find().distinct('email');
-
-//   if (adminEmails.includes(session?.user?.email)) {
-//     // User is an admin, proceed with the request.
-//     return;
-//   }
-
-//   // User is not an admin, send a 401 Unauthorized response.
-//   res.status(401).json({ error: 'Unauthorized' });
-// }
-
-
