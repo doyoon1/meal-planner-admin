@@ -5,6 +5,7 @@ const commentSchema = new mongoose.Schema({
   recipe: { type: mongoose.Types.ObjectId, ref: 'Recipe', required: true },
   text: { type: String, required: true },
   approved: { type: Boolean, default: false },
+  hidden: { type: Boolean, default: false },
 }, {
   timestamps: true,
 });

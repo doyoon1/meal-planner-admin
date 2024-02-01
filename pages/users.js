@@ -1,26 +1,35 @@
 import Layout from "@/components/Layout";
 import { useEffect, useState } from "react";
+import Pagination from "@/components/Pagination";
 
 const UsersPage = () => {
   const [users, setUsers] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage] = useState(10);
 
   useEffect(() => {
-    // Fetch users on component mount
     fetchUsers();
-  }, []);
+  }, [currentPage]);
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch("/api/users");
-      let data = await response.json();
+      const response = await fetch("/api/user");
+      const data = await response.json();
 
-      // Sort users by Date Joined in descending order
-      data = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const sortedUsers = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-      setUsers(data);
+      setUsers(sortedUsers);
     } catch (error) {
       console.error("Error fetching users:", error);
     }
+  };
+
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
+
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
   };
 
   return (
@@ -36,7 +45,7 @@ const UsersPage = () => {
             </tr>
           </thead>
           <tbody>
-            {users.map((user) => (
+            {currentUsers.map((user) => (
               <tr key={user._id}>
                 <td>{`${user.firstName} ${user.lastName}`}</td>
                 <td>{user.email}</td>
@@ -45,6 +54,12 @@ const UsersPage = () => {
             ))}
           </tbody>
         </table>
+        <Pagination
+          recipesPerPage={usersPerPage}
+          totalRecipes={users.length}
+          currentPage={currentPage}
+          paginate={paginate}
+        />
       </div>
     </Layout>
   );

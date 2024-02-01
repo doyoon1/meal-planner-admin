@@ -4,23 +4,30 @@ import axios from "axios";
 import { withSwal } from "react-sweetalert2";
 import Pagination from "@/components/Pagination"
 
-
 function Categories({ swal }) {
   const [editedCategory, setEditedCategory] = useState(null);
   const [name, setName] = useState('');
-  const [parentCategory, setParentCategory] = useState(null); 
+  const [parentCategory, setParentCategory] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [recipesCount, setRecipesCount] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const categoryPerPage = 8;
 
   useEffect(() => {
     fetchCategories();
+    fetchRecipesCount();
   }, []);
 
   function fetchCategories() {
     axios.get('/api/categories').then(result => {
       setCategories(result.data);
+    });
+  }
+
+  function fetchRecipesCount() {
+    axios.get('/api/recipeCounts').then(result => {
+      setRecipesCount(result.data);
     });
   }
 
@@ -33,18 +40,16 @@ function Categories({ swal }) {
     const data = { name, parent: parentCategory ? parentCategory._id : null };
   
     if (editedCategory) {
-      // When editing, only check for duplicate category name if the name has changed
       if (editedCategory.name !== name) {
         const isDuplicateCategory = categories.some(category => category.name.toLowerCase() === name.toLowerCase());
   
         if (isDuplicateCategory) {
-          // Display an alert message for duplicate category
           swal.fire({
             icon: 'error',
             title: 'Duplicate Category',
             text: 'This category already exists in the table.',
           });
-          return; // Stop execution if it's a duplicate
+          return;
         }
       }
   
@@ -53,17 +58,15 @@ function Categories({ swal }) {
       await axios.put('/api/categories', data);
       setEditedCategory(null);
     } else {
-      // When creating a new category, check for duplicate category name
       const isDuplicateCategory = categories.some(category => category.name.toLowerCase() === name.toLowerCase());
   
       if (isDuplicateCategory) {
-        // Display an alert message for duplicate category
         swal.fire({
           icon: 'error',
           title: 'Duplicate Category',
           text: 'This category already exists in the table.',
         });
-        return; // Stop execution if it's a duplicate
+        return;
       }
   
       await axios.post('/api/categories', data);
@@ -165,6 +168,7 @@ function Categories({ swal }) {
           <tr>
             <td>Category name</td>
             <td>Parent Category</td>
+            <td>No. of Recipes</td>
             <td></td>
           </tr>
         </thead>
@@ -175,6 +179,7 @@ function Categories({ swal }) {
             <td>
               {category.parent && categories.find(cat => cat._id === category.parent)?.name || ''}
             </td>
+            <td>{recipesCount[category._id] || 0}</td>
               <td className="text-center">
                 <button
                   className="bg-white text-gray-600 border border-gray-200 shadow-md"

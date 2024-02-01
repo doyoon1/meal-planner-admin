@@ -1,4 +1,3 @@
-// /api/recipes
 import { Recipe } from "@/models/Recipe";
 import { RecipeLog } from "@/models/Log";
 import { mongooseConnect } from "@/lib/mongoose";
@@ -34,7 +33,6 @@ export default async function handle(req, res) {
             cookingTime,
         });
 
-        // Create a log entry for the 'add' action
         await RecipeLog.create({
             action: 'add',
             recipe: productDoc._id,
@@ -61,7 +59,6 @@ export default async function handle(req, res) {
             cookingTime,
         });
 
-        // Create a log entry for the 'edit' action
         await RecipeLog.create({
             action: 'edit',
             recipe: _id,
@@ -75,7 +72,6 @@ export default async function handle(req, res) {
         if (req.query.id) {
             await Recipe.deleteOne({ _id: req.query.id });
     
-            // Create a log entry for the 'delete' action
             await RecipeLog.create({
                 action: 'delete',
                 recipe: req.query.id,

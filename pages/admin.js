@@ -1,22 +1,30 @@
 import Layout from "@/components/Layout";
 import { useState, useEffect } from "react";
-import Swal from 'sweetalert2';
+import { withSwal } from "react-sweetalert2";
 
-const AdminEmailsPage = () => {
+const AdminEmailsPage = ({ swal }) => {
   const [adminEmails, setAdminEmails] = useState([]);
   const [newAdminEmail, setNewAdminEmail] = useState("");
+  const [duplicateEmailError, setDuplicateEmailError] = useState(null);
 
   const fetchAdminEmails = async () => {
     const response = await fetch("/api/admins");
     const data = await response.json();
     setAdminEmails(data);
-  };  
+  };
 
   useEffect(() => {
     fetchAdminEmails();
   }, []);
 
   const handleAddAdminEmail = async () => {
+    const isDuplicateEmail = adminEmails.some((admin) => admin.email.toLowerCase() === newAdminEmail.toLowerCase());
+
+    if (isDuplicateEmail) {
+      setDuplicateEmailError('This email already exists in the list.');
+      return;
+    }
+
     const response = await fetch("/api/admins", {
       method: "POST",
       headers: {
@@ -24,15 +32,16 @@ const AdminEmailsPage = () => {
       },
       body: JSON.stringify({ email: newAdminEmail }),
     });
-    
+
     if (response.ok) {
+      setDuplicateEmailError(null);
       fetchAdminEmails();
       setNewAdminEmail("");
     }
   };
 
   const confirmDelete = async (admin) => {
-    const result = await Swal.fire({
+    const result = await swal.fire({
       title: 'Confirm Deletion',
       text: `Are you sure you want to delete ${admin.email}?`,
       icon: 'warning',
@@ -73,7 +82,9 @@ const AdminEmailsPage = () => {
             Add
           </button>
         </div>
+        {duplicateEmailError && <p className="text-red-500">{duplicateEmailError}</p>}
       </div>
+
       <div className="mt-6">
         <h2 className="text-xl font-semibold mb-2">Admin Email List</h2>
         <table className="basic">
@@ -109,4 +120,6 @@ const AdminEmailsPage = () => {
   );
 };
 
-export default AdminEmailsPage;
+export default withSwal(({ swal }, ref) => (
+  <AdminEmailsPage swal={swal} />
+));

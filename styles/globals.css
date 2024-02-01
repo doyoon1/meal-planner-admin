@@ -34,7 +34,7 @@ label {
 
 
 table.basic {
-    @apply w-full mt-4 bg-white rounded-sm shadow-md;
+    @apply w-full mt-2 bg-white rounded-sm shadow-md;
 }
 
 table.basic thead tr td {

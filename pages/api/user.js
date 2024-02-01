@@ -7,10 +7,8 @@ export default async function handle(req, res) {
 
   if (method === "GET") {
     try {
-      const users = await UserAccounts.find().sort({ createdAt: 1 });
-      const userCreationsByDate = getUsersByDate(users);
-
-      res.json(userCreationsByDate);
+      const users = await UserAccounts.find();
+      res.json(users);
     } catch (error) {
       console.error("Error fetching users:", error);
       res.status(500).json({ error: "Internal Server Error" });
@@ -28,15 +26,4 @@ export default async function handle(req, res) {
 
     res.json({ success: true });
   }
-}
-
-function getUsersByDate(users) {
-  const userCreationsByDate = {};
-
-  users.forEach((user) => {
-    const creationDate = user.createdAt.toISOString().split('T')[0];
-    userCreationsByDate[creationDate] = (userCreationsByDate[creationDate] || 0) + 1;
-  });
-
-  return userCreationsByDate;
 }

@@ -12,7 +12,6 @@ export default function Comments() {
   const indexOfFirstComment = indexOfLastComment - commentsPerPage;
 
   useEffect(() => {
-    // Fetch comments on component mount
     fetchComments();
   }, []);
 
@@ -25,16 +24,13 @@ export default function Comments() {
     }
   };
 
-  // Custom sorting function
   const customSort = (a, b) => {
-    // Sort by approval status (approved comments come last)
     if (a.approved && !b.approved) {
       return 1;
     } else if (!a.approved && b.approved) {
       return -1;
     }
 
-    // If both comments have the same approval status, sort by date (newest first)
     return new Date(b.createdAt) - new Date(a.createdAt);
   };
 
@@ -46,7 +42,6 @@ export default function Comments() {
 
   const handleApprove = async (commentId) => {
     try {
-      // Show SweetAlert for confirmation
       const result = await Swal.fire({
         title: "Are you sure?",
         text: "You want to approve this comment?",
@@ -58,17 +53,14 @@ export default function Comments() {
       });
 
       if (result.isConfirmed) {
-        // Send a request to update the comment's approved field
         const response = await axios.put(`/api/approve/${commentId}`);
 
-        // Update the comments state with the updated comment
         setComments((prevComments) =>
           prevComments.map((comment) =>
             comment._id === commentId ? { ...comment, approved: true } : comment
           )
         );
 
-        // Show success message
         Swal.fire("Approved!", "Comment has been approved.", "success");
       }
     } catch (error) {
@@ -79,7 +71,6 @@ export default function Comments() {
 
   const handleDelete = async (commentId) => {
     try {
-      // Show SweetAlert for confirmation
       const result = await Swal.fire({
         title: "Are you sure?",
         text: "You want to delete this comment?",
@@ -91,15 +82,12 @@ export default function Comments() {
       });
   
       if (result.isConfirmed) {
-        // Send a DELETE request to delete the comment
         await axios.delete(`/api/comments/${commentId}`);
   
-        // Update the comments state by filtering out the deleted comment
         setComments((prevComments) =>
           prevComments.filter((comment) => comment._id !== commentId)
         );
   
-        // Show success message
         Swal.fire("Deleted!", "Comment has been deleted.", "success");
       }
     } catch (error) {
@@ -124,12 +112,11 @@ export default function Comments() {
         <tbody>
           {currentComments.map((comment) => (
             <tr key={comment._id}>
-              <td>{comment.user.firstName} {comment.user.lastName}</td>
+              <td>{comment.user?.firstName || comment.user?.lastName ? `${comment.user?.firstName || ''} ${comment.user?.lastName || 'Deleted User'}` : 'Unknown User'}</td>
               <td>{comment.recipe ? comment.recipe.title : 'Deleted Recipe'}</td>
               <td>{comment.text}</td>
               <td>{new Date(comment.createdAt).toLocaleString()}</td>
               <td>
-                {/* Only show the button if the comment is not approved */}
                 {!comment.approved && (
                   <button
                     onClick={() => handleApprove(comment._id)}
@@ -141,7 +128,7 @@ export default function Comments() {
                     Allow
                   </button>
                 )}
-                <button
+                {/* <button
                   onClick={() => handleDelete(comment._id)}
                   className="bg-red-200 text-red-600 shadow-md"
                 >
@@ -149,7 +136,7 @@ export default function Comments() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                   </svg>
                   Delete
-                </button>
+                </button> */}
               </td>
             </tr>
           ))}
