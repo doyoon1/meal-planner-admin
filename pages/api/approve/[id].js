@@ -8,15 +8,21 @@ export default async function handle(req, res) {
     const { id } = req.query;
 
     try {
+      const comment = await Comment.findById(id);
+
+      if (!comment) {
+        return res.status(404).json({ error: "Comment not found" });
+      }
+
       const updatedComment = await Comment.findByIdAndUpdate(
         id,
-        { approved: true },
+        { approved: !comment.approved },
         { new: true }
       );
 
       res.json(updatedComment);
     } catch (error) {
-      console.error(`Error approving comment with ID ${id}:`, error);
+      console.error(`Error toggling approval for comment with ID ${id}:`, error);
       res.status(500).json({ error: "Internal Server Error" });
     }
   } else {

@@ -61,7 +61,6 @@ export default function RecipeForm({
     async function saveRecipe(ev) {
         ev.preventDefault();
     
-        // Validation
         if (!title || !description || !images.length || ingredients.some(i => !i.name || !i.quantity || !i.measurement)) {
             Swal.fire({
                 icon: 'error',
@@ -71,7 +70,6 @@ export default function RecipeForm({
             return;
         }
     
-        // Filter out empty values from selected categories
         const selectedCategories = categoryDropdowns
             .map((dropdown) => dropdown.selectedCategory)
             .filter((categoryId) => categoryId);
@@ -437,7 +435,8 @@ export default function RecipeForm({
                             >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>                            </button>
+                            </svg>                            
+                            </button>
                         </div>
                     ))}
                     <label>Procedure</label>
